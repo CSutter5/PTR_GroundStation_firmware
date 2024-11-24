@@ -17,13 +17,13 @@
                 var frequency = document.getElementById("frequencyInput").value;
                 console.log('freq="%d"', frequency);
 
-                if(frequency < 915000){
-                    window.alert("Frequency too low! Min. frequency = 915000 kHz");
+                if(frequency < 900000){
+                    window.alert("Frequency too low! Min. frequency = 900000 kHz");
                     freq_valid = false
                 }
 
-                if(frequency > 916000){
-                    window.alert("Frequency too high! Max. frequency = 916000 kHz");
+                if(frequency > 920000){
+                    window.alert("Frequency too high! Max. frequency = 920000 kHz");
                     freq_valid = false;
                 }
 

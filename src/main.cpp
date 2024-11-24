@@ -158,7 +158,7 @@ void setup() {
     temp = request->getParam("freq", true)->value();
     freq = temp.toInt();
     Serial.printf("Received method: %s \n", temp);
-    if(freq >= 915000 && freq <= 916000){
+    if(freq >= 900000 && freq <= 920000){
       if(LORA_changeFrequency(freq)){
         request->send(200, "text/plain", "Succesfully changed frequency to " + (String)(freq) );
       }
