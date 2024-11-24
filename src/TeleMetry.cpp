@@ -35,13 +35,13 @@ float prevAltitude = 0.0f;
 
 void TM_parser(uint8_t * buf, uint8_t len, float RSSI){
 	TM_RSSI = RSSI;
-	
+
 	//Telemetry frame - full state
-	if((*((uint8_t *)buf + 0)) == PACKET_LEGACY_FULL)		
+	if((*((uint8_t *)buf + 0)) == PACKET_LEGACY_FULL)
 		TM_parser_FULLSTATE(RSSI, buf);
 
 	//Tracker frame - full state retransmitted
-	if((*((uint8_t *)buf + 0)) == PACKET_TRACKER)	
+	if((*((uint8_t *)buf + 0)) == PACKET_TRACKER)
 		TM_parser_TRACKER(RSSI, buf);
 }
 
@@ -87,7 +87,7 @@ void TM_parser_FULLSTATE(float rssi, uint8_t * buf){
 	rocket_state_d.vbat = ((float)pPlayload->vbat_10) / 10.0f;
 
 	if(rocket_state_d.fix > 0){
-		
+
 		lastvalid_lat.sign = rocket_state_d.gnss_lat.sign;
 		lastvalid_lat.cord = rocket_state_d.gnss_lat.cord;
 		lastvalid_lon.sign = rocket_state_d.gnss_lon.sign;
@@ -111,7 +111,7 @@ void TM_parser_FULLSTATE(float rssi, uint8_t * buf){
 	}
 
 	char buffer[1024] = {0};
-	uint16_t len = sprintf(buffer, 
+	uint16_t len = sprintf(buffer,
 				"0x%X;%.1f;%ld;%d;%i;%i;%i;"	//sys state
 				"%.1f;"				// Vbat
 				"%.2f;%.2f;%.2f;"	// acc
@@ -125,31 +125,31 @@ void TM_parser_FULLSTATE(float rssi, uint8_t * buf){
 				"%s\n", 			// raw
 	PACKET_LEGACY_FULL,
 	rssi,
-	rocket_state_d.timestamp_ms, 
-	rocket_state_d.packet_no, 
+	rocket_state_d.timestamp_ms,
+	rocket_state_d.packet_no,
 	rocket_state_d.sender_ID,
-	rocket_state_d.state, 
-	rocket_state_d.flags, 
+	rocket_state_d.state,
+	rocket_state_d.flags,
 	rocket_state_d.vbat,
-	rocket_state_d.accX, 
-	rocket_state_d.accY, 
-	rocket_state_d.accZ,  
+	rocket_state_d.accX,
+	rocket_state_d.accY,
+	rocket_state_d.accZ,
 	rocket_state_d.gyroX,
 	rocket_state_d.gyroY,
 	rocket_state_d.gyroZ,
-	rocket_state_d.tilt, 
-	rocket_state_d.pressure, 
-	rocket_state_d.velocity, 
+	rocket_state_d.tilt,
+	rocket_state_d.pressure,
+	rocket_state_d.velocity,
 	rocket_state_d.altitude,
-	rocket_state_d.gnss_lat.sign, rocket_state_d.gnss_lat.cord,  
-	rocket_state_d.gnss_lon.sign, rocket_state_d.gnss_lon.cord, 
-	rocket_state_d.gnss_altitude, 
+	rocket_state_d.gnss_lat.sign, rocket_state_d.gnss_lat.cord,
+	rocket_state_d.gnss_lon.sign, rocket_state_d.gnss_lon.cord,
+	rocket_state_d.gnss_altitude,
 	rocket_state_d.fix, rocket_state_d.sats,
 	GNSS_getOwnLat(), GNSS_getOwnLon(),
 	GNSS_getOwnFix(), GNSS_getOwnSat(),
 	distance2target, dir2target,
 	raw_packet);
-	
+
 	Serial.print(buffer);
 	TM_file_write(buffer, len);
 
@@ -215,7 +215,7 @@ void TM_parser_TRACKER(float rssi, uint8_t * buf){
 	rocket_state_d.vbat = ((float)pPlayload->vbat_10) / 10.0f;
 
 	if(rocket_state_d.fix > 0){
-		
+
 		lastvalid_lat.sign = rocket_state_d.gnss_lat.sign;
 		lastvalid_lat.cord = rocket_state_d.gnss_lat.cord;
 		lastvalid_lon.sign = rocket_state_d.gnss_lon.sign;
@@ -248,13 +248,13 @@ void TM_parser_TRACKER(float rssi, uint8_t * buf){
 									"%s\n", 				// raw
 	PACKET_TRACKER,
 	rssi,
-	rocket_state_d.timestamp_ms, 
-	rocket_state_d.packet_no, 
+	rocket_state_d.timestamp_ms,
+	rocket_state_d.packet_no,
 	rocket_state_d.sender_ID,
 	rocket_state_d.vbat,
-	rocket_state_d.gnss_lat.sign, rocket_state_d.gnss_lat.cord, 
-	rocket_state_d.gnss_lon.sign, rocket_state_d.gnss_lon.cord,  
-	rocket_state_d.gnss_altitude, 
+	rocket_state_d.gnss_lat.sign, rocket_state_d.gnss_lat.cord,
+	rocket_state_d.gnss_lon.sign, rocket_state_d.gnss_lon.cord,
+	rocket_state_d.gnss_altitude,
 	rocket_state_d.fix, rocket_state_d.sats,
 	GNSS_getOwnLat(), GNSS_getOwnLon(),
 	GNSS_getOwnFix(), GNSS_getOwnSat(),
@@ -363,9 +363,9 @@ void TM_file_write(char * line, uint16_t length){
 bool TM_changeID(int id) {
 	Serial.printf("Changing ID to %d \n", id);
 	TM_ID = id;
-	
+
 	preferences_update_id(id);
-	
+
 	return true;
 }
 

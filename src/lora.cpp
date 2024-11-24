@@ -48,7 +48,7 @@ bool LORA_init(){
         Serial.println(state);
     }
 
-    radio.setFrequency(433.0f);
+    radio.setFrequency(915.0f);
     radio.setBandwidth(125);        // 7.8, 10.4, 15.6, 20.8, 31.25, 41.7, 62.5, 125, 250, 500
     radio.setSpreadingFactor(8);   // 6 - 12
     radio.setCodingRate(5);

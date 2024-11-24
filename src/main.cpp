@@ -25,7 +25,7 @@ static void BOARD_init();
 
 static long RSL_previousMillis = 0;
 
-const char *ssid_base = "PTR-GS";
+const char *ssid_base = "UWPRocketry";
 //const char *password = "KPPTR";
 
 AsyncWebServer server(80);
@@ -58,11 +58,11 @@ void setup() {
 
   if(GNSS_init()){
     Serial.println(F("GNSS init done!"));
-  }  
+  }
 
   if(LORA_init()){
     TM_changeID(preferences_get_id());
-    LORA_changeFrequency(preferences_get_frequency()); 
+    LORA_changeFrequency(preferences_get_frequency());
     Serial.println(F("LORA init done!"));
     OLED_drawString(0, 21, "LORA OK");
   } else {
@@ -117,12 +117,12 @@ void setup() {
     }
 
     Serial.println('\n');
-    Serial.println("Connection established!");  
-  #else 
+    Serial.println("Connection established!");
+  #else
     WiFi.softAP(ssid);
     OLED_drawString(0, 29, "WiFi AP created!");
   #endif
-  
+
 
   server.serveStatic("/tracker_list.html", SPIFFS, "/tracker_list.html");
   server.serveStatic("/styles.css", SPIFFS, "/styles.css");
@@ -137,7 +137,7 @@ void setup() {
   server.on("/tracker_list_api", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(200, "text/plain", TM_getJSON());
   });
- 
+
   server.on("/parse", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/log.csv", "text/plain", false);
   });
@@ -158,7 +158,7 @@ void setup() {
     temp = request->getParam("freq", true)->value();
     freq = temp.toInt();
     Serial.printf("Received method: %s \n", temp);
-    if(freq >= 430000 && freq <= 440000){
+    if(freq >= 915000 && freq <= 916000){
       if(LORA_changeFrequency(freq)){
         request->send(200, "text/plain", "Succesfully changed frequency to " + (String)(freq) );
       }
@@ -204,7 +204,7 @@ void setup() {
 
   OLED_clear();
   OLED_drawSplash();
-  delay(2000);  
+  delay(2000);
 
   OLED_clear();
   OLED_drawLargeString(0, 15, "WiFi AP:");

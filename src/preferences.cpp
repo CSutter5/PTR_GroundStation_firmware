@@ -25,18 +25,18 @@ int preferences_init(){
             return -1;
         }
 
-        config_data_d.frequency = 433250;
+        config_data_d.frequency = 915250;
         config_data_d.id = 0;
         config_data_d.oled_driver = SH1106;
 
-        config["configuration"]["frequency"] = 434250;
+        config["configuration"]["frequency"] = 915250;
         config["configuration"]["id"] = 0;
         config["configuration"]["oled_driver"] = SH1106;
 
         serializeJson(config, file);
         file.close();
     }
-    
+
     file = SPIFFS.open(path, FILE_READ);
     if(!file){
         Serial.println("- failed to open file for reading");
@@ -52,8 +52,9 @@ int preferences_init(){
     return 0;
 }
 
-int preferences_get_frequency(){  
-    return config_data_d.frequency;
+int preferences_get_frequency(){
+    // return config_data_d.frequency;
+    return 915250;
 }
 
 int preferences_get_id(){
@@ -64,7 +65,7 @@ String preferences_get_OLEDdriver(){
     OLED_driver_e tmp = config_data_d.oled_driver;
     if(tmp == SSD1306)
         return "SSD1306";
-    
+
     if(tmp == SH1106)
         return "SH1106";
 
@@ -87,7 +88,7 @@ void preferences_update_OLEDdriver(String driver){
 
     if(driver == "SSD1306")
         tmp = SSD1306;
-    
+
     if(driver == "SH1106")
         tmp = SH1106;
 
@@ -108,6 +109,6 @@ void preferences_update(){
     config["configuration"]["oled_driver"] = config_data_d.oled_driver;
 
     serializeJson(config, file);
-    file.close(); 
+    file.close();
 
 }
