@@ -214,12 +214,20 @@ void setup() {
   LORA_startRX();
 }
 
+ulong lastLog = millis();
+
 void loop() {
   LORA_RXhandler();
   LORA_PacketCounter();
   GNSS_srv();
   OLED_refresh();
   PWR_loop();
+
+  if ((millis() - lastLog) > 1000) {
+    Serial.println(TM_getJSON());
+
+    lastLog = millis();
+  }
 }
 
 
