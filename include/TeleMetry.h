@@ -62,3 +62,6 @@ int TM_getID();
 long LORA_getPacketHealth();
 float TM_getVertVel();
 String TM_getJSON();
+
+bool TM_dataChanged();
+bool TM_clearDataChanged();

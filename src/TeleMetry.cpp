@@ -33,6 +33,8 @@ static long LORA_lastPacketMillis = 0;
 uint32_t prevTimestamp = 1;
 float prevAltitude = 0.0f;
 
+static bool TM_data_changed = false;
+
 void TM_parser(uint8_t * buf, uint8_t len, float RSSI){
 	TM_RSSI = RSSI;
 
@@ -402,6 +404,8 @@ void TM_updateHistory(uint16_t sender_id, float latitude, float longitude, float
 	history_table[index].latitude 	= latitude;
 	history_table[index].longitude 	= longitude;
 	history_table[index].altitude 	= altitude;
+
+	TM_data_changed = true;
 }
 
 
@@ -428,4 +432,12 @@ String TM_getJSON() {
   serializeJson(doc, json);
 
   return json;
+}
+
+bool TM_dataChanged(){
+	return TM_data_changed;
+}
+
+void TM_clearDataChanged(){
+	TM_data_changed = false;
 }

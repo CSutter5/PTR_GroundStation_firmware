@@ -1,6 +1,7 @@
 #include "FS.h"
 #include "SPIFFS.h"
 #include "ESPAsyncWebServer.h"
+#include "AsyncWebSocket.h"
 #include "string.h"
 #include "Arduino.h"
 
@@ -22,6 +23,8 @@
 static void getChipInfo();
 static void printWakeupReason();
 static void BOARD_init();
+static void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+                       AwsEventType type, void *arg, uint8_t *data, size_t len);
 
 static long RSL_previousMillis = 0;
 
@@ -29,6 +32,7 @@ const char *ssid_base = "UWPRocketry";
 //const char *password = "KPPTR";
 
 AsyncWebServer server(80);
+AsyncWebSocket ws("/ws");
 
 #ifdef VERSION_TAG
   const char *version = VERSION_TAG;
@@ -129,6 +133,8 @@ void setup() {
   server.serveStatic("/tracker_list_script.js", SPIFFS, "/tracker_list_script.js");
   server.serveStatic("/download", SPIFFS, "/log.csv");
 
+  ws.onEvent(onWsEvent);
+  server.addHandler(&ws);
 
   server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
     request->send(SPIFFS, "/index.html", "text/html", false);
@@ -215,6 +221,7 @@ void setup() {
 }
 
 ulong lastLog = millis();
+ulong lastTestData = millis();
 
 void loop() {
   LORA_RXhandler();
@@ -223,13 +230,22 @@ void loop() {
   OLED_refresh();
   PWR_loop();
 
+  // Push update the moment new tracker data arrives
+  if (TM_dataChanged()) {
+    ws.textAll(TM_getJSON());
+    TM_clearDataChanged();
+  }
+
   if ((millis() - lastLog) > 1000) {
-    Serial.println(TM_getJSON());
+    String json = TM_getJSON();
+    Serial.println(json);
+
+    ws.textAll(json);
+    ws.cleanupClients();
 
     lastLog = millis();
   }
 }
-
 
 
 static void getChipInfo(){
@@ -388,4 +404,16 @@ static void BOARD_init(){
 //     find_gps = beginGPS();
 // #endif
 // #endif
+}
+
+static void onWsEvent(AsyncWebSocket *server, AsyncWebSocketClient *client,
+                       AwsEventType type, void *arg, uint8_t *data, size_t len) {
+  if (type == WS_EVT_CONNECT) {
+    Serial.printf("[WS] Client #%u connected\n", client->id());
+    // Send current state immediately so the new client isn't blank until next change
+    client->text(TM_getJSON());
+  } else if (type == WS_EVT_DISCONNECT) {
+    Serial.printf("[WS] Client #%u disconnected\n", client->id());
+  }
+  // WS_EVT_DATA / WS_EVT_ERROR / WS_EVT_PONG ignored - this is push-only, no client->server data needed
 }
