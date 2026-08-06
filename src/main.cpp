@@ -19,6 +19,7 @@
 #include "PWR.h"
 #include <SPI.h>
 #include <Wire.h>
+#include <ESPmDNS.h>
 
 static void getChipInfo();
 static void printWakeupReason();
@@ -125,8 +126,14 @@ void setup() {
   #else
     WiFi.softAP(ssid);
     OLED_drawString(0, 29, "WiFi AP created!");
-  #endif
 
+    if (MDNS.begin("station")) {
+      Serial.println("mDNS responder started: http://station.local");
+    } else {
+      Serial.println("Error starting mDNS");
+    }
+    MDNS.addService("http", "tcp", 80);
+  #endif
 
   server.serveStatic("/tracker_list.html", SPIFFS, "/tracker_list.html");
   server.serveStatic("/styles.css", SPIFFS, "/styles.css");
