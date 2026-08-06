@@ -2,8 +2,17 @@ let ws = null;
 let pollTimer = null;
 let usingFallback = false;
 
+// Client-side log: array of {timestamp, id, latitude, longitude, altitude, age}
+const dataLog = [];
+const MAX_LOG_ENTRIES = 100000; // safety cap so a long session doesn't exhaust browser memory
+
 document.addEventListener("DOMContentLoaded", function() {
     connectWebSocket();
+
+    const downloadBtn = document.getElementById("downloadLogBtn");
+    if (downloadBtn) {
+        downloadBtn.addEventListener("click", downloadLogAsCSV);
+    }
 });
 
 function connectWebSocket() {
@@ -60,6 +69,8 @@ function fetchAndPopulate() {
 }
 
 function populateTable(data) {
+    logData(data);
+
     const tableBody = document.querySelector('#trackerTable tbody');
     tableBody.innerHTML = ""; // clear previous rows so we don't duplicate on refresh
 
@@ -107,4 +118,55 @@ function populateTable(data) {
 
         tableBody.appendChild(row);
     });
+}
+
+function logData(data) {
+    const timestamp = new Date().toISOString();
+
+    data.forEach(item => {
+        if (dataLog.length >= MAX_LOG_ENTRIES) {
+            dataLog.shift(); // drop oldest entry to make room
+        }
+        dataLog.push({
+            timestamp: timestamp,
+            id: item.id,
+            age: item.age,
+            latitude: item.latitude,
+            longitude: item.longitude,
+            altitude: item.altitude
+        });
+    });
+
+    updateLogCount();
+}
+
+function updateLogCount() {
+    const counter = document.getElementById("logCount");
+    if (counter) {
+        counter.textContent = `${dataLog.length} entries logged`;
+    }
+}
+
+function downloadLogAsCSV() {
+    if (dataLog.length === 0) {
+        alert("No data logged yet.");
+        return;
+    }
+
+    const header = "timestamp,id,age_s,latitude,longitude,altitude\n";
+    const rows = dataLog.map(entry =>
+        `${entry.timestamp},${entry.id},${entry.age},${entry.latitude},${entry.longitude},${entry.altitude}`
+    ).join("\n");
+
+    const csvContent = header + rows;
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `tracker_log_${new Date().toISOString().replace(/[:.]/g, "-")}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
